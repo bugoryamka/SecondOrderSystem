@@ -1,15 +1,17 @@
-// sketch.js
 let system;
 let targetPosition;
 let currentPosition;
-let movementSpeed = 200;
 let fSlider, zSlider, rSlider; // Sliders for parameters
 let targetHistory = []; // Stores the history of the red ball (target position)
 let currentHistory = []; // Stores the history of the blue ball (current position)
+let isMobile = false; // Flag to check if the site is accessed from a mobile device
 
 function setup() {
   const canvas = createCanvas(800, 600);
   canvas.parent('sketch');
+
+  // Check if the site is accessed from a mobile device
+  isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   // Get slider elements
   fSlider = document.getElementById('fSlider');
@@ -41,6 +43,11 @@ function setup() {
   rSlider.addEventListener('input', () => {
     document.getElementById('rValue').textContent = rSlider.value;
   });
+
+  // Add event listener for device orientation (gyroscope)
+  if (isMobile && window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', handleDeviceOrientation);
+  }
 }
 
 function draw() {
@@ -48,6 +55,13 @@ function draw() {
 
   // Update the system parameters if sliders are changed
   system.setParameters(parseFloat(fSlider.value), parseFloat(zSlider.value), parseFloat(rSlider.value));
+
+  // Update the target position based on input (mouse or gyroscope)
+  if (isMobile) {
+    updateTargetPositionWithGyroscope();
+  } else {
+    updateTargetPositionWithMouse();
+  }
 
   // Update the system with the target position
   currentPosition = system.update(deltaTime / 1000, targetPosition);
@@ -70,36 +84,38 @@ function draw() {
   noStroke();
   ellipse(currentPosition.x, currentPosition.y, 30, 30);
 
-  // Handle WASD input to update the target position
-  handleWASDInput();
-
   // Draw the x, y graph in the right visualization box
   drawGraph();
 }
 
-function handleWASDInput() {
-  // Get input from the keyboard
-  let moveX = 0;
-  let moveY = 0;
+function updateTargetPositionWithMouse() {
+  // Set the target position to the mouse position
+  targetPosition.set(mouseX, mouseY);
 
-  if (keyIsDown(87)) { // W key (up)
-    moveY -= 1;
-  }
-  if (keyIsDown(83)) { // S key (down)
-    moveY += 1;
-  }
-  if (keyIsDown(65)) { // A key (left)
-    moveX -= 1;
-  }
-  if (keyIsDown(68)) { // D key (right)
-    moveX += 1;
-  }
+  // Constrain the target position to stay within the canvas
+  targetPosition.x = constrain(targetPosition.x, 0, width);
+  targetPosition.y = constrain(targetPosition.y, 0, height);
+}
 
-  // Normalize the movement vector to ensure consistent speed in all directions
-  let movement = createVector(moveX, moveY).normalize().mult(movementSpeed * deltaTime / 1000);
+function updateTargetPositionWithGyroscope() {
+  // Gyroscope data is handled in the handleDeviceOrientation function
+}
 
-  // Update the target position based on input
-  targetPosition.add(movement);
+function handleDeviceOrientation(event) {
+  // Use the gamma (left/right tilt) and beta (front/back tilt) values to control the target position
+  let gamma = event.gamma; // Left/right tilt (range: -90 to 90)
+  let beta = event.beta;   // Front/back tilt (range: -180 to 180)
+
+  // Map the tilt values to the canvas dimensions
+  let x = map(gamma, -90, 90, 0, width);
+  let y = map(beta, -180, 180, 0, height);
+
+  // Update the target position
+  targetPosition.set(x, y);
+
+  // Constrain the target position to stay within the canvas
+  targetPosition.x = constrain(targetPosition.x, 0, width);
+  targetPosition.y = constrain(targetPosition.y, 0, height);
 }
 
 function drawGraph() {
