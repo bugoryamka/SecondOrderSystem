@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Second-Order Dynamics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Second-Order Dynamics</h1>
+    <div id="sketch"></div>
+    <div class="sliders">
+      <label for="fSlider">Frequency (f): <span id="fValue">1.0</span></label>
+      <input type="range" id="fSlider" min="0" max="5" step="0.1" value="1.0">
+
+      <label for="zSlider">Damping Ratio (z): <span id="zValue">0.5</span></label>
+      <input type="range" id="zSlider" min="0" max="2" step="0.1" value="0.5">
+
+      <label for="rSlider">Initial Response (r): <span id="rValue">2.0</span></label>
+      <input type="range" id="rSlider" min="-10" max="10" step="0.1" value="2.0">
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="sketch.js"></script>
+</body>
+</html>
