@@ -5,7 +5,9 @@ let fSlider, zSlider, rSlider;
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 function setup() {
-  const canvas = createCanvas(800, 600);
+  let canvasWidth = isMobile ? windowWidth : 800;
+  let canvasHeight = isMobile ? windowHeight * 0.7 : 600; // 70% of window height for mobile
+  const canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.parent('sketch');
 
   // Get slider elements
@@ -37,12 +39,6 @@ function setup() {
     document.getElementById('rValue').textContent = rSlider.value;
   });
 
-  // Add touch event listener for mobile devices
-  if (isMobile) {
-    canvas.elt.addEventListener('touchstart', handleTouch);
-    canvas.elt.addEventListener('touchmove', handleTouch);
-  }
-
   // Add gyroscope event listener for mobile devices
   if (isMobile && window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', handleDeviceOrientation);
@@ -67,21 +63,6 @@ function draw() {
   fill(66, 133, 244);
   noStroke();
   ellipse(currentPosition.x, currentPosition.y, 30, 30);
-}
-
-function handleTouch(event) {
-  // Prevent default touch behavior (e.g., scrolling)
-  event.preventDefault();
-
-  // Get the first touch point
-  let touch = event.touches[0];
-
-  // Update the target position based on touch coordinates
-  targetPosition.set(touch.clientX, touch.clientY);
-
-  // Constrain the target position to stay within the canvas
-  targetPosition.x = constrain(targetPosition.x, 0, width);
-  targetPosition.y = constrain(targetPosition.y, 0, height);
 }
 
 function handleDeviceOrientation(event) {
